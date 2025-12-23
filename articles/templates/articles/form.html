@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% if article %}Редактирование{% else %}Создание{% endif %} | SLAY</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --slay-pink: #ff3366;
+            --slay-purple: #8a2be2;
+            --slay-dark: #1a1a2e;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 100%);
+            color: white;
+            min-height: 100vh;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+
+        .form-container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 50px;
+            text-decoration: none;
+            display: inline-block;
+            margin-bottom: 30px;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .form-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        .form-header {
+            background: linear-gradient(135deg, var(--slay-pink) 0%, var(--slay-purple) 100%);
+            padding: 25px 30px;
+        }
+
+        .form-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .form-body {
+            padding: 30px;
+        }
+
+        .form-label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: rgba(255, 255, 255, 0.9);
+            display: block;
+        }
+
+        .form-control-custom {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            color: white;
+            padding: 12px 15px;
+            width: 100%;
+            margin-bottom: 5px;
+        }
+
+        .form-control-custom:focus {
+            border-color: var(--slay-pink);
+            background: rgba(255, 255, 255, 0.12);
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(255, 51, 102, 0.2);
+        }
+
+        textarea.form-control-custom {
+            min-height: 200px;
+            resize: vertical;
+        }
+
+        .char-counter {
+            text-align: right;
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 20px;
+        }
+
+        .char-counter.warning {
+            color: #ffcc00;
+        }
+
+        .char-counter.danger {
+            color: var(--slay-pink);
+            font-weight: bold;
+        }
+
+        .btn-primary-custom {
+            background: linear-gradient(135deg, var(--slay-pink) 0%, var(--slay-purple) 100%);
+            border: none;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 10px;
+            font-weight: 600;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .btn-primary-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 51, 102, 0.3);
+        }
+
+        .btn-secondary-custom {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 12px 30px;
+            border-radius: 10px;
+            font-weight: 600;
+            width: 100%;
+            text-decoration: none;
+            display: block;
+            text-align: center;
+        }
+
+        .btn-secondary-custom:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .info-box {
+            background: rgba(255, 51, 102, 0.1);
+            border-left: 3px solid var(--slay-pink);
+            border-radius: 8px;
+            padding: 15px;
+            margin: 20px 0;
+            font-size: 0.9rem;
+        }
+
+        .footer-text {
+            text-align: center;
+            margin-top: 30px;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <!-- Кнопка назад -->
+        <a href="/articles" class="back-btn">
+            <i class="fas fa-arrow-left me-2"></i>Вернуться
+        </a>
+
+        <!-- Форма -->
+        <div class="form-card">
+            <!-- Шапка -->
+            <div class="form-header">
+                <h1 class="form-title">
+                    {% if article %}
+                        <i class="fas fa-edit me-2"></i>Редактирование
+                    {% else %}
+                        <i class="fas fa-plus-circle me-2"></i>Новая публикация
+                    {% endif %}
+                </h1>
+            </div>
+
+            <!-- Тело формы -->
+            <div class="form-body">
+                <form method="post">
+                    {% csrf_token %}
+
+                    <!-- Заголовок -->
+                    <div class="mb-4">
+                        <label class="form-label">
+                            <i class="fas fa-heading me-1"></i>Заголовок
+                        </label>
+                        <input type="text"
+                               class="form-control-custom"
+                               id="title"
+                               name="title"
+                               value="{% if article %}{{ article.title }}{% endif %}"
+                               placeholder="Введите заголовок..."
+                               required
+                               maxlength="200">
+                        <div class="char-counter" id="title-counter">
+                            <span id="title-chars">0</span>/200 символов
+                        </div>
+                    </div>
+
+                    <!-- Текст -->
+                    <div class="mb-4">
+                        <label class="form-label">
+                            <i class="fas fa-align-left me-1"></i>Текст статьи
+                        </label>
+                        <textarea class="form-control-custom"
+                                  id="content"
+                                  name="content"
+                                  rows="10"
+                                  placeholder="Напишите свою историю..."
+                                  required>{% if article %}{{ article.content }}{% endif %}</textarea>
+                        <div class="char-counter" id="content-counter">
+                            <span id="content-chars">0</span> символов
+                        </div>
+                    </div>
+
+                    <!-- Информация (при редактировании) -->
+                    {% if article %}
+                    <div class="info-box">
+                        <div class="row">
+                            <div class="col-md-6 mb-2">
+                                <i class="far fa-calendar me-1"></i>
+                                <strong>Создано:</strong> {{ article.created_at|date:"d.m.Y H:i" }}
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <i class="fas fa-sync-alt me-1"></i>
+                                <strong>Обновлено:</strong> {{ article.updated_at|date:"d.m.Y H:i" }}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Кнопки -->
+                    <button type="submit" class="btn-primary-custom">
+                        {% if article %}
+                            <i class="fas fa-save me-2"></i>Сохранить изменения
+                        {% else %}
+                            <i class="fas fa-paper-plane me-2"></i>Опубликовать
+                        {% endif %}
+                    </button>
+
+                    <a href="/articles" class="btn-secondary-custom">
+                        <i class="fas fa-times me-2"></i>Отмена
+                    </a>
+                </form>
+            </div>
+        </div>
+
+        <!-- Футер -->
+        <div class="footer-text">
+            <i class="fas fa-shield-alt me-1"></i>Безопасное хранение •
+            <i class="fas fa-code me-1 ms-2"></i>API доступ •
+            © 2025 SLAY
+        </div>
+    </div>
+
+    <script>
+        // Элементы
+        const titleInput = document.getElementById('title');
+        const contentInput = document.getElementById('content');
+        const titleChars = document.getElementById('title-chars');
+        const contentChars = document.getElementById('content-chars');
+        const titleCounter = document.getElementById('title-counter');
+        const contentCounter = document.getElementById('content-counter');
+
+        // Обновление счетчиков
+        function updateCounters() {
+            const titleLength = titleInput.value.length;
+            const contentLength = contentInput.value.length;
+
+            titleChars.textContent = titleLength;
+            contentChars.textContent = contentLength;
+
+            // Подсветка заголовка
+            if (titleLength > 180) {
+                titleCounter.classList.add('warning');
+                if (titleLength >= 195) {
+                    titleCounter.classList.remove('warning');
+                    titleCounter.classList.add('danger');
+                }
+            } else {
+                titleCounter.classList.remove('warning', 'danger');
+            }
+
+            // Подсветка текста
+            if (contentLength > 1500) {
+                contentCounter.classList.add('warning');
+                if (contentLength > 2500) {
+                    contentCounter.classList.remove('warning');
+                    contentCounter.classList.add('danger');
+                }
+            } else {
+                contentCounter.classList.remove('warning', 'danger');
+            }
+        }
+
+        // Слушатели
+        titleInput.addEventListener('input', updateCounters);
+        contentInput.addEventListener('input', updateCounters);
+
+        // Автофокус
+        {% if not article %}
+        document.addEventListener('DOMContentLoaded', function() {
+            titleInput.focus();
+        });
+        {% endif %}
+
+        // Инициализация
+        updateCounters();
+    </script>
+</body>
+</html>

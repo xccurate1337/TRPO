@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SLAY - Минисервис публикаций</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --slay-pink: #ff3366;
+            --slay-purple: #8a2be2;
+            --slay-dark: #1a1a2e;
+            --text-light: #f8f9fa;
+            --text-muted: #adb5bd;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 100%);
+            color: white;
+            min-height: 100vh;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+
+        /* Заголовок */
+        .slay-title {
+            font-size: 3.5rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--slay-pink) 0%, var(--slay-purple) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 1rem;
+        }
+
+        /* Карточки */
+        .article-card {
+            background: rgba(30, 30, 46, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 15px;
+            margin-bottom: 25px;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .article-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(255, 51, 102, 0.4);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .article-card::before {
+            content: '';
+            display: block;
+            height: 4px;
+            background: linear-gradient(135deg, var(--slay-pink) 0%, var(--slay-purple) 100%);
+            border-radius: 15px 15px 0 0;
+        }
+
+        /* Текст в карточках */
+        .card-title {
+            color: var(--text-light) !important;
+            font-weight: 600;
+            margin-bottom: 12px;
+            font-size: 1.2rem;
+        }
+
+        .card-preview {
+            color: var(--text-muted) !important;
+            line-height: 1.5;
+            margin-bottom: 20px;
+            font-size: 0.95rem;
+        }
+
+        .card-meta {
+            color: rgba(173, 181, 189, 0.8) !important;
+            font-size: 0.85rem;
+        }
+
+        /* Кнопки */
+        .btn-slay {
+            background: linear-gradient(135deg, var(--slay-pink) 0%, var(--slay-purple) 100%);
+            border: none;
+            color: white;
+            padding: 12px 25px;
+            border-radius: 50px;
+            font-weight: 600;
+        }
+
+        .btn-slay:hover {
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 51, 102, 0.3);
+        }
+
+        .btn-edit {
+            background: rgba(255, 193, 7, 0.15);
+            border: 1px solid rgba(255, 193, 7, 0.3);
+            color: #ffc107;
+        }
+
+        .btn-view {
+            background: rgba(23, 162, 184, 0.15);
+            border: 1px solid rgba(23, 162, 184, 0.3);
+            color: #17a2b8;
+        }
+
+        .btn-delete {
+            background: rgba(255, 51, 102, 0.15);
+            border: 1px solid rgba(255, 51, 102, 0.3);
+            color: #ff3366;
+        }
+
+        .btn-edit:hover, .btn-view:hover, .btn-delete:hover {
+            transform: translateY(-2px);
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container py-5">
+        <!-- Заголовок -->
+        <div class="row mb-5">
+            <div class="col-12 text-center">
+                <h1 class="slay-title">SLAY</h1>
+                <p class="lead mb-4" style="color: rgba(255, 255, 255, 0.8);">
+                    <span class="fire-emoji"></span>
+                    Минисервис публикаций
+                </p>
+            </div>
+        </div>
+
+        <!-- Кнопки управления -->
+        <div class="row mb-5">
+            <div class="col-12 text-center">
+                <a href="/articles/create" class="btn btn-slay mb-3">
+                    <i class="fas fa-plus-circle me-2"></i>Создать новую публикацию
+                </a>
+                <div>
+                    <a href="/api/articles/" class="btn btn-outline-light btn-sm me-2">
+                        <i class="fas fa-code me-1"></i>API
+                    </a>
+                    <a href="/admin/" class="btn btn-outline-light btn-sm">
+                        <i class="fas fa-cog me-1"></i>Админка
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Статьи -->
+        <div class="row">
+            {% if articles %}
+                {% for article in articles %}
+                <div class="col-lg-4 col-md-6">
+                    <div class="article-card">
+                        <div class="p-4">
+                            <h5 class="card-title">{{ article.title }}</h5>
+                            <p class="card-preview">
+                                {{ article.content|truncatewords:20 }}
+                            </p>
+
+                            <div class="d-flex justify-content-between mb-3">
+                                <small class="card-meta">
+                                    <i class="far fa-calendar me-1"></i>
+                                    {{ article.created_at|date:"d.m.Y" }}
+                                </small>
+                                <small class="card-meta">
+                                    ID: {{ article.id }}
+                                </small>
+                            </div>
+
+                            <div class="d-grid gap-2">
+                                <a href="/articles/{{ article.id }}/edit" class="btn btn-edit">
+                                    <i class="fas fa-edit me-2"></i>Редактировать
+                                </a>
+                                <button class="btn btn-view" onclick="showArticle({{ article.id }})">
+                                    <i class="fas fa-eye me-2"></i>Быстрый просмотр
+                                </button>
+                                <button class="btn btn-delete" onclick="confirmDelete({{ article.id }}, '{{ article.title|escapejs }}')">
+                                    <i class="fas fa-trash-alt me-2"></i>Удалить
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="col-12 text-center py-5">
+                    <div class="empty-state">
+                        <i class="fas fa-feather-alt fa-4x mb-4" style="color: rgba(255, 255, 255, 0.3);"></i>
+                        <h4 style="color: var(--text-light);">Пока здесь тихо...</h4>
+                        <p class="mb-4" style="color: var(--text-muted);">Создайте свою первую публикацию</p>
+                        <a href="/articles/create" class="btn btn-slay">
+                            <i class="fas fa-magic me-2"></i>Начать творить
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Футер -->
+        <footer class="mt-5 pt-4 text-center border-top border-secondary">
+            <p class="text-muted">
+                <strong style="color: var(--slay-pink);">SLAY</strong> • Минисервис публикаций •
+                Django • © 2025
+            </p>
+        </footer>
+    </div>
+
+    <!-- Модалка для просмотра -->
+    <div class="modal fade" id="articleModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content bg-dark text-white">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title" id="modalTitle" style="color: var(--text-light);"></h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="modalContent" style="color: var(--text-muted);"></div>
+                <div class="modal-footer border-secondary">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модалка для удаления -->
+    <div class="modal fade" id="deleteModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content bg-dark text-white">
+                <div class="modal-header border-danger">
+                    <h5 class="modal-title text-danger">
+                        <i class="fas fa-exclamation-triangle me-2"></i>Удалить публикацию?
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p style="color: var(--text-muted);">Вы уверены, что хотите удалить "<span id="deleteArticleTitle" class="text-danger fw-bold"></span>"?</p>
+                    <p class="small" style="color: rgba(173, 181, 189, 0.7);">Это действие нельзя отменить.</p>
+                </div>
+                <div class="modal-footer border-danger">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <form method="POST" id="deleteForm" style="display: inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger">Да, удалить</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Данные статей для быстрого просмотра
+        const articlesData = [
+            {% for article in articles %}
+            {
+                id: {{ article.id }},
+                title: `{{ article.title|escapejs }}`,
+                content: `{{ article.content|escapejs }}`,
+                created_at: `{{ article.created_at|date:"d.m.Y H:i" }}`
+            },
+            {% endfor %}
+        ];
+
+        // Функция быстрого просмотра
+        function showArticle(articleId) {
+            const article = articlesData.find(a => a.id === articleId);
+            if (!article) return;
+
+            document.getElementById('modalTitle').textContent = article.title;
+            document.getElementById('modalContent').innerHTML = `
+                <div class="mb-3">
+                    <small class="text-muted">
+                        <i class="far fa-calendar me-1"></i>
+                        Создано: ${article.created_at}
+                    </small>
+                </div>
+                <div style="line-height: 1.8; color: #e9ecef;">
+                    ${article.content.replace(/\n/g, '<br>')}
+                </div>
+            `;
+
+            new bootstrap.Modal(document.getElementById('articleModal')).show();
+        }
+
+        // Функция подтверждения удаления
+        function confirmDelete(articleId, articleTitle) {
+            document.getElementById('deleteArticleTitle').textContent = articleTitle;
+
+            // Обновляем action формы
+            const form = document.getElementById('deleteForm');
+            form.action = `/articles/${articleId}/delete`;
+
+            new bootstrap.Modal(document.getElementById('deleteModal')).show();
+        }
+    </script>
+</body>
+</html>
